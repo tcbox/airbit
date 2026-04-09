@@ -5,14 +5,15 @@ interface Ireactions {
     dislikes: number;
 }
 
-interface IPost {
-    id: string;
+export interface IPost {
+    id: number;
     title: string;
     body: string;
     tags: string[] | null,
     reactions: Ireactions,
     views: number,
     userid: number,
+    isLiked?: boolean,
 }
 
 interface PostState {
@@ -22,7 +23,8 @@ interface PostState {
     limit: number,
     isLoading: boolean,
     error: string | null,
-    fetchPosts : (userId:string) => Promise<void>
+    fetchPosts : (userId?: string, limit?: number, skip?: number) => Promise<void>
+    toggleLike: (postId: number) => void;
 }
 
 export const usePostStore = create<PostState>((set) => ({
@@ -33,14 +35,20 @@ export const usePostStore = create<PostState>((set) => ({
     isLoading: false,
     error: null,
 
-    fetchPosts: async (userId: string) => {
+    fetchPosts: async (userId?: string, limit: number = 30, skip: number = 0) => {
 
         set({ isLoading: true, error: null, })
         
         try {
-            const res = await fetch(`https://dummyjson.com/posts`)
+            // Optional: User id unte vaalla posts thevali, lekapothe all posts
+            // Ippatiki all posts with limit fetch chesthunnam:
+            const url = userId 
+                ? `https://dummyjson.com/posts/user/${userId}?limit=${limit}&skip=${skip}`
+                : `https://dummyjson.com/posts?limit=${limit}&skip=${skip}`
+
+            const res = await fetch(url)
             if (!res.ok) {
-                throw new Error(`User not found`)
+                throw new Error(`Failed to fetch posts`)
             }
             const PostData = await res.json()
             set({
@@ -58,5 +66,30 @@ export const usePostStore = create<PostState>((set) => ({
                 set({error: 'Something went wrong', isLoading: false})
             }
         }
+    },
+
+    toggleLike: (postId: number) => {
+        set((state) => {
+            
+            
+            return {
+                posts: state.posts.map(post => {
+                    console.log("state",state)
+                    if (post.id === postId) {
+                    const currentlyLiked = post.isLiked || false;
+                    const change = currentlyLiked ? -1 : 1;
+                    return {
+                        ...post,
+                        isLiked: !currentlyLiked,
+                        reactions: {
+                            ...post.reactions,
+                            likes: (post.reactions?.likes || 0) + change
+                        }
+                    };
+                }
+                return post;
+                })
+            }
+        });
     }
 }))
