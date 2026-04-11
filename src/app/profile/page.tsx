@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 
 const ProfilePage = () => {
   const [userIdInput, setUserIdInput] = useState("")
+  
   const { profile, isLoading, isError, posts, toggleLike } = useProfile({ userId: userIdInput, limit: 30})
 
   return (
@@ -109,5 +110,6 @@ const ProfilePage = () => {
     </div>
   )
 }
+
 
 export default ProfilePage
