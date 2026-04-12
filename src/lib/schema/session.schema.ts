@@ -41,8 +41,9 @@ export type NewSession = typeof sessionTable.$inferInsert;
 
 // -------- RELATIONS --------
 export const sessionRelations = relations(sessionTable, ({ one }) => ({
-  user: one(userTable, {
-    fields: [sessionTable.userId], // Ikkada unna userId tho
-    references: [userTable.id],    // User table lo unna id ni match chestham
+  users: one(userTable, {
+    fields: [sessionTable.userId],
+    references: [userTable.id],
   }),
 }));
+

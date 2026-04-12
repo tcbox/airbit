@@ -1,5 +1,8 @@
+import { relations } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
+import { sessionTable } from "./session.schema";
+import { postTable } from "./posts.schema";
 
 export const userTable = pgTable(
   "users",
@@ -34,3 +37,10 @@ export const userTable = pgTable(
 // Infer typing directly from Drizzle schema
 export type User = typeof userTable.$inferSelect; // Query  type
 export type NewUser = typeof userTable.$inferInsert; // Database  type
+
+// -------- RELATIONS --------
+
+export const userRelations = relations(userTable, ({ many }) => ({
+  sessions: many(sessionTable),
+  posts: many(postTable),
+}));
